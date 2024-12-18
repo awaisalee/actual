@@ -4,6 +4,7 @@
 import './browser-preload';
 
 import './fonts.scss';
+import './style/index.css'
 
 import './i18n';
 

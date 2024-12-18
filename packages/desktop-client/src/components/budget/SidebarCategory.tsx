@@ -15,6 +15,8 @@ import { Popover } from '../common/Popover';
 import { View } from '../common/View';
 import { NotesButton } from '../NotesButton';
 import { InputCell } from '../table';
+import { useFeatureFlag } from '../../hooks/useFeatureFlag';
+import BudgetGoalModal from './modal/BudgetGoalModal';
 
 type SidebarCategoryProps = {
   innerRef: Ref<HTMLDivElement>;
@@ -51,7 +53,8 @@ export function SidebarCategory({
   const temporary = category.id === 'new';
   const [menuOpen, setMenuOpen] = useState(false);
   const triggerRef = useRef(null);
-
+  const isGoalTemplatesEnabled = useFeatureFlag('goalTemplatesEnabled');
+  const [isShowGoalModal, setIsShowGoalModal] = useState(false);
   const displayed = (
     <View
       style={{
@@ -101,12 +104,15 @@ export function SidebarCategory({
                 onEditName(category.id);
               } else if (type === 'delete') {
                 onDelete(category.id);
+              } else if(type === 'isGoalTemplatesEnabled'){
+                setIsShowGoalModal(!isShowGoalModal);
               } else if (type === 'toggle-visibility') {
                 onSave({ ...category, hidden: !category.hidden });
               }
               setMenuOpen(false);
             }}
             items={[
+              ...(isGoalTemplatesEnabled ? [{ name: 'isGoalTemplatesEnabled', text: t('Set Goal') }] : []),
               { name: 'rename', text: 'Rename' },
               !categoryGroup?.hidden && {
                 name: 'toggle-visibility',
@@ -129,6 +135,7 @@ export function SidebarCategory({
   );
 
   return (
+    <>
     <View
       innerRef={innerRef}
       style={{
@@ -186,5 +193,14 @@ export function SidebarCategory({
         }}
       />
     </View>
+      {
+        isShowGoalModal &&
+        <BudgetGoalModal
+          key={category.id}
+          setIsShowGoalModal={setIsShowGoalModal}
+          category={category}
+        />
+      }
+    </>
   );
 }
